@@ -2,17 +2,20 @@ import pickle
 import numpy as np
 from tqdm import tqdm
 
+NUM_GRIDPOINTS = 6
+VEC_SIZE = NUM_GRIDPOINTS**2
+
 class ActorCriticAgent():
 
-    def __init__(self, env, action_spread = 0.4, lambdaIn = 0.9):
+    def __init__(self, env, action_spread = 0.5, lambdaIn = 0.9):
 
         self.env = env
         self.count = 0
-        self.theta = np.random.normal(0,0.1,(64))
-        self.w =np.random.normal(0,0.1,(64))
+        self.theta = np.random.normal(0,0.1,(VEC_SIZE))
+        self.w =np.random.normal(0,0.1,(VEC_SIZE))
         self.action_sigma = action_spread
 
-        self.visitCounterVector = np.zeros((64))
+        self.visitCounterVector = np.zeros((VEC_SIZE))
 
         self._lambda = lambdaIn
 
@@ -21,16 +24,16 @@ class ActorCriticAgent():
     
     def initRBFReferenceVectors(self):
 
-        rbf_xpositions = [-1,-0.8,-0.6,-0.4,-0.2,0,0.2,0.4]
-        rbf_velocities = np.linspace(-1.2, 1.2, 8)
+        rbf_xpositions = np.linspace(-1.2, 0.5, NUM_GRIDPOINTS)
+        rbf_velocities = np.linspace(-1.2, 1.2, NUM_GRIDPOINTS)
 
-        self.xposRBFVector = np.concatenate([[rbf_xpos for i in range(8)] for rbf_xpos in rbf_xpositions])
-        self.velRBFVector = np.concatenate([[rbf_vel for rbf_vel in rbf_velocities] for i in range(8)])
+        self.xposRBFVector = np.concatenate([[rbf_xpos for i in range(NUM_GRIDPOINTS)] for rbf_xpos in rbf_xpositions])
+        self.velRBFVector = np.concatenate([[rbf_vel for rbf_vel in rbf_velocities] for i in range(NUM_GRIDPOINTS)])
 
     def initEligibilityTraces(self):
 
-        self.actorEligibilityTrace = np.zeros((64))
-        self.criticEligibilityTrace = np.zeros((64))
+        self.actorEligibilityTrace = np.zeros((VEC_SIZE))
+        self.criticEligibilityTrace = np.zeros((VEC_SIZE))
 
     def getAction(self):
         # evaluate the policy (actor):
@@ -49,9 +52,9 @@ class ActorCriticAgent():
     def generateFeatureVector(self, state):
         position, velocity = state
 
-        sig_pos = 2*0.1**2
-        xposVector = np.ones((64))*position
-        velVector = np.ones((64))*velocity
+        sig_pos = 2*0.2**2
+        xposVector = np.ones((VEC_SIZE))*position
+        velVector = np.ones((VEC_SIZE))*velocity
 
         # featureVector = np.zeros((64))
         # for i,xpos in enumerate(rbf_xpositions):
@@ -67,17 +70,19 @@ class ActorCriticAgent():
     def train(self, numSteps = 100):
         self.historicalReward = []
         for i in tqdm(range(numSteps)):
-            if i == 1000:
-                self.action_sigma = 0.01
+            if i == 10000:
+                self.action_sigma = 0.1
             r = self.runEpisode()
             self.historicalReward.append(r)
         
-    def runEpisode(self):
+    def runEpisode(self, exploringStarts = True):
 
         totReward = 0
         self.initEligibilityTraces()
-
-        state = self.env.reset()
+        if exploringStarts:
+            state = self.env.reset()
+        else:
+            state = self.env.reset(initial_position = 0.5)
         done = False
 
         while not done:
