@@ -83,7 +83,7 @@ class MountainCar:
         #                      + str(action) + " is out of range.")
         done = False
         reward = -0.01
-        action_t = action
+        action_t = min(max(action,-0.2),0.2)
         velocity_t1 = self.velocity_t + \
                       (-self.gravity * self.mass * np.cos(3*self.position_t)
                        + (action_t/self.mass)
@@ -98,7 +98,7 @@ class MountainCar:
         self.velocity_t= velocity_t1
         self.position_list.append(position_t1)
         self.velocity_list.append(velocity_t1)
-        self.action_list.append(action)
+        self.action_list.append(action_t)
         # Reward and done when the car reaches the goal
         if position_t1 >= 0.5:
             reward = +1.0
@@ -149,7 +149,7 @@ class MountainCar:
                                       blit=True, init_func=_init, repeat=False)
 
         if mode == 'gif':
-            ani.save(file_path, writer='imagemagick', fps=int(1/self.delta_t))
+            ani.save(file_path, writer='pillow', fps=int(1/self.delta_t))
         elif mode == 'mp4':
             ani.save(file_path, fps=int(1/self.delta_t), writer='avconv', codec='libx264')
         # Clear the figure
