@@ -26,6 +26,9 @@ for (i,x) in enumerate(X):
         Z[i,j] = acAgent.getValueFunction(state)
         meanAction[i,j] = np.dot(acAgent.generateFeatureVector(state), acAgent.theta)
 XM, YM = np.meshgrid(X, Y)  # `plot_surface` expects `x` and `y` data to be 2D
-ha.plot_surface(XM, YM, np.transpose(meanAction))
+ha.plot_surface(XM, YM, np.transpose(Z))
 print(acAgent.theta)
 plt.show()
+
+acAgent.runEpisode(exploringStarts = False)
+acAgent.env.render("./trained_agent_0.gif","gif")

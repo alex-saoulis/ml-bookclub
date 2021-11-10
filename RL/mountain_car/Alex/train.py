@@ -7,7 +7,7 @@ env = MountainCar()
 acAgent = ActorCriticAgent(env, lambdaIn = 0.99)
 
 print(acAgent.generateFeatureVector([-1, -1]))
-acAgent.loadWeights("./weights/debug.pkl")
+#acAgent.loadWeights("./weights/debug.pkl")
 acAgent.train(numSteps=20000)
 
 env.render("./trained_agent.gif","gif")
