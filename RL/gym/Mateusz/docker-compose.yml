@@ -1,0 +1,10 @@
+version: "3.3"
+services:
+  openai-gym:
+    image: "lderkx/openai-gym:latest"
+    restart: "unless-stopped"
+    ports:
+      - "8888:8888"
+      - "6006:6006"
+    volumes:
+      - "./notebooks:/mnt/notebooks"

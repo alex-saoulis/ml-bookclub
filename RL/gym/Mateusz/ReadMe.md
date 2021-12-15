@@ -1,0 +1,1 @@
+# After launching the docker look at the log for a link with a token otherwise you will not be able to access the notebook
